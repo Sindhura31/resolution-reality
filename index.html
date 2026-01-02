@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resolution Reality Check</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function ResolutionChecker() {
+      const [resolution, setResolution] = useState('');
+      const [result, setResult] = useState(null);
+      const [totalChecks, setTotalChecks] = useState(0);
+      const [showCopied, setShowCopied] = useState(false);
+
+      useEffect(() => {
+        const stored = sessionStorage.getItem('resolutionChecks');
+        if (stored) {
+          setTotalChecks(parseInt(stored));
+        }
+      }, []);
+
+      const analyzeResolution = (text) => {
+        const lower = text.toLowerCase();
+        
+        const delusionalKeywords = [
+          'billionaire', 'millionaire', 'million dollars', 'rich', 'wealthy', 'famous', 'viral', 'influencer',
+          'perfect body', 'perfect', '10 languages', '100 books', '50 books', 'ceo', 'transform completely',
+          'never again', 'every single day', '30 days', 'one month', 'abs in', 'six pack', 'fluent in',
+          '4 am', '5 am', 'forever', 'completely stop', 'quit forever', 'completely change',
+          'overnight', 'instantly', 'immediately', 'all at once', 'radical', 'dramatically',
+          'celebrity', 'model body', 'supermodel', 'bodybuilder', 'professional athlete',
+          '100%', 'totally', 'entirely', 'quit my job', 'retire early', 'passive income millions',
+          'bestseller', 'youtube star', 'tiktok famous', 'instagram model', 'pro gamer',
+          'master everything', 'learn everything', 'best in the world', 'world class',
+          '50 pounds', '30 kg', '100 followers', '1000 followers', 'million followers',
+          'revolutionary', 'life changing overnight', 'become expert', 'phd in a year'
+        ];
+        
+        const optimisticKeywords = [
+          'learn', 'language', 'spanish', 'french', 'german', 'italian', 'japanese', 'chinese',
+          'coding', 'programming', 'python', 'javascript', 'web development', 'app development',
+          'marathon', '10k', '5k', 'half marathon', 'triathlon', 'running', 'race',
+          'gym', 'workout', 'exercise', 'fitness', 'training', 'lift weights', 'strength',
+          'books', 'novel', 'write a book', 'finish writing', 'manuscript',
+          'business', 'startup', 'side hustle', 'freelance', 'entrepreneur',
+          'promotion', 'raise', 'advance career', 'new job', 'career change',
+          'save money', 'budget', 'invest', 'financial goals', 'emergency fund',
+          'meditate', 'yoga', 'mindfulness', 'therapy', 'mental health',
+          'healthy', 'diet', 'nutrition', 'meal planning', 'eating clean',
+          'weight', 'lose weight', 'pounds', 'kg', 'body fat', 'get fit',
+          'skill', 'course', 'certification', 'degree', 'qualification', 'training program',
+          'hobby', 'instrument', 'guitar', 'piano', 'drawing', 'painting', 'photography',
+          'volunteer', 'give back', 'charity', 'community service',
+          'network', 'connections', 'linkedin', 'professional development',
+          'travel', 'visit', 'countries', 'bucket list', 'adventure',
+          'quit smoking', 'stop drinking', 'cut down', 'reduce', 'limit',
+          'blog', 'podcast', 'youtube channel', 'content creation',
+          'build portfolio', 'side project', 'passion project'
+        ];
+        
+        const achievableKeywords = [
+          'water', 'hydrate', 'drink water', 'more water', '8 glasses',
+          'sleep', 'rest', 'sleep better', 'sleep earlier', 'bedtime', '8 hours',
+          'walk', 'walking', 'stroll', 'steps', 'daily walk',
+          'call', 'text', 'reach out', 'keep in touch', 'stay connected',
+          'family', 'friend', 'friends', 'parents', 'mom', 'dad', 'siblings',
+          'read more', 'read daily', 'reading', 'book a month', 'articles',
+          'cook', 'cooking', 'meal prep', 'home cooked', 'recipes',
+          'social media', 'phone', 'screen time', 'less scrolling', 'digital detox',
+          'organize', 'declutter', 'clean', 'tidy', 'organized', 'neat',
+          'room', 'desk', 'workspace', 'closet', 'garage',
+          'journal', 'journaling', 'diary', 'write down', 'reflect',
+          'stretch', 'stretching', 'flexibility', 'morning stretch',
+          'floss', 'dental', 'teeth', 'brush teeth',
+          'bed', 'make bed', 'morning routine', 'evening routine',
+          'grateful', 'gratitude', 'thankful', 'appreciate',
+          'compliment', 'kind', 'kindness', 'nice', 'positive',
+          'breathe', 'breathing', 'deep breaths', 'relax', 'calm',
+          'smile', 'laugh', 'happy', 'joy', 'enjoy',
+          'posture', 'sit up straight', 'stand tall', 'ergonomic',
+          'breakfast', 'eat breakfast', 'healthy breakfast',
+          'vitamins', 'supplements', 'take vitamins',
+          'sunlight', 'outdoors', 'fresh air', 'nature',
+          'plants', 'garden', 'grow plants', 'water plants',
+          'pet', 'dog', 'cat', 'play with pet',
+          'music', 'listen to music', 'favorite songs',
+          'hobby time', 'relax', 'unwind', 'me time',
+          'say no', 'boundaries', 'self care', 'prioritize'
+        ];
+        
+        let delusionalScore = 0;
+        let optimisticScore = 0;
+        let achievableScore = 0;
+        
+        delusionalKeywords.forEach(keyword => {
+          if (lower.includes(keyword)) delusionalScore++;
+        });
+        
+        optimisticKeywords.forEach(keyword => {
+          if (lower.includes(keyword)) optimisticScore++;
+        });
+        
+        achievableKeywords.forEach(keyword => {
+          if (lower.includes(keyword)) achievableScore++;
+        });
+        
+        if (/\d{2,}/.test(text)) {
+          const num = parseInt(text.match(/\d+/)[0]);
+          if (num >= 50) delusionalScore += 2;
+          else if (num >= 10) optimisticScore += 1;
+        }
+        
+        if (text.length > 100) delusionalScore++;
+        if (/!!!|never|always|every day|daily|perfect/.test(lower)) optimisticScore++;
+
+        const responses = {
+          delusional: [
+            { verdict: "Delusional (but we admire the confidence)", 
+              message: "Listen, we love the energy. Truly. But maybe start with 'remember to floss' and work your way up?",
+              advice: "Reality check: Rome wasn't built in a day, and neither is whatever you're planning." },
+            { verdict: "Delusional (but we admire the confidence)", 
+              message: "That's... certainly a goal. Did a motivational Instagram post write this?",
+              advice: "Pro tip: If your resolution needs a lottery win to succeed, it might need workshopping." },
+            { verdict: "Delusional (but we admire the confidence)", 
+              message: "Okay Tony Robbins, let's pump the brakes. This is giving 'peaked during vision board workshop' vibes.",
+              advice: "Consider: What if we aimed for 'functional human' first?" },
+            { verdict: "Delusional (but we admire the confidence)", 
+              message: "I see we're operating in the 'fake it till you make it' zone. Bold strategy. Has it worked before?",
+              advice: "Maybe try a resolution that doesn't require divine intervention or a trust fund." },
+            { verdict: "Wildly Ambitious (respect the hustle)", 
+              message: "You know what? I'm not even mad. This is impressively delusional. The confidence is chef's kiss.",
+              advice: "Quick reality check: Do you have a billionaire uncle? A time machine? Superpowers? No? Then maybe scale back 70%." },
+            { verdict: "Living in Fantasy Land (but okay)", 
+              message: "This resolution just called—it wants to know if you've ever heard of 'baby steps' or 'realistic expectations.'",
+              advice: "Start with something achievable, like 'wake up before noon' and work your way up to world domination." },
+            { verdict: "Peak Delusion Unlocked 🏆", 
+              message: "Congratulations! You've achieved maximum overconfidence. This deserves an award for sheer audacity.",
+              advice: "The good news: You dream big! The bad news: Physics, time, and reality still exist. Sorry about that." },
+            { verdict: "Netflix Documentary Material", 
+              message: "This is either going to be an inspiring success story or a cautionary tale. No middle ground here.",
+              advice: "Plot twist: Most success stories start with way smaller, way more boring first steps. Just saying." }
+          ],
+          optimistic: [
+            { verdict: "Optimistic but possible", 
+              message: "This could actually happen! Will it? Well, that's between you and your future therapy bill.",
+              advice: "You'll need discipline, accountability, and probably several existential crises. But sure, why not?" },
+            { verdict: "Optimistic but possible", 
+              message: "Not impossible. Just... improbable. Like finishing a project before the deadline.",
+              advice: "Break this down into smaller steps, or you'll be repeating this same resolution next January." },
+            { verdict: "Optimistic but possible", 
+              message: "Ambitious! You might actually pull this off if you can defeat your true enemy: yourself.",
+              advice: "Set reminders. Like, so many reminders. And find an accountability partner who won't let you weasel out." },
+            { verdict: "Optimistic but possible", 
+              message: "Look at you, shooting for the stars! Just remember: even astronauts need training first.",
+              advice: "Start with week one, not week fifty-two. Baby steps beat burnout every time." },
+            { verdict: "Challenging but Doable 💪", 
+              message: "This is the sweet spot! Hard enough to be impressive, realistic enough to actually happen.",
+              advice: "The secret ingredient is consistency. Also coffee. Mostly coffee. And not giving up when it gets boring in week three." },
+            { verdict: "Requires Commitment (are you ready?)", 
+              message: "This will test you. There will be days you hate this resolution. But future you will thank present you.",
+              advice: "Track your progress, celebrate small wins, and remember: motivation gets you started, habit keeps you going." },
+            { verdict: "Ambitious AF (we like it)", 
+              message: "Finally, someone who gets it! Dream big but plan bigger. This could genuinely work with proper execution.",
+              advice: "Make a detailed plan, set milestones, and don't tell everyone about it—just quietly become that person." },
+            { verdict: "Reach Goal Territory 🎯", 
+              message: "This is that perfect balance between 'challenging' and 'not requiring a miracle.' Well played.",
+              advice: "You've got about 60-70% chance of success. Those are good odds! Now don't waste them by not starting today." }
+          ],
+          achievable: [
+            { verdict: "Actually achievable", 
+              message: "Look at you being all reasonable and realistic! You're either very wise or very tired.",
+              advice: "This is genuinely doable. Don't overthink it. Just... actually do it this time?" },
+            { verdict: "Actually achievable", 
+              message: "A resolution that doesn't require divine intervention? Revolutionary!",
+              advice: "Start small, build consistency, and don't be weird about it if you miss a day." },
+            { verdict: "Actually achievable", 
+              message: "Finally, someone who understands that sustainable change doesn't need to be dramatic.",
+              advice: "You've got this. Seriously. It's basically already done. Just... keep doing it for 365 days." },
+            { verdict: "Actually achievable", 
+              message: "This is so reasonable, I'm genuinely impressed. Did you learn from past mistakes?",
+              advice: "The secret is out: boring resolutions are the ones that actually stick. Well done." },
+            { verdict: "Easy Win ✨", 
+              message: "This is the resolution equivalent of ordering pizza—simple, satisfying, and almost impossible to mess up.",
+              advice: "You could literally start this today. Like, right now. Why are you still reading this? Go do the thing!" },
+            { verdict: "Low-Hanging Fruit 🍎", 
+              message: "Smart! You're picking the easy wins first. This is exactly how successful people build momentum.",
+              advice: "Stack this habit with something you already do. Brush teeth? Drink water. Make coffee? Do a stretch. Boom. Done." },
+            { verdict: "Perfectly Reasonable 👍", 
+              message: "No notes. This is chef's kiss levels of realistic goal-setting. You clearly know yourself.",
+              advice: "The only way you fail this is by overthinking it. So don't overthink it. Just start and keep going." },
+            { verdict: "Sustainable Change 🌱", 
+              message: "This! This is how real transformation happens—one tiny, unglamorous step at a time.",
+              advice: "Future you is already thanking you. This is the kind of resolution that actually improves your life long-term." },
+            { verdict: "The Slow Burn (best kind)", 
+              message: "Not flashy, not dramatic—just solid, reliable self-improvement. You're playing the long game. Respect.",
+              advice: "Consistency beats intensity. Do this every day and in six months you'll be amazed at the compound effect." }
+          ]
+        };
+
+        if (delusionalScore > 0) {
+          return responses.delusional[Math.floor(Math.random() * responses.delusional.length)];
+        } else if (optimisticScore > achievableScore && optimisticScore > 0) {
+          return responses.optimistic[Math.floor(Math.random() * responses.optimistic.length)];
+        } else if (achievableScore > 0) {
+          return responses.achievable[Math.floor(Math.random() * responses.achievable.length)];
+        } else {
+          if (text.length > 40) {
+            return responses.optimistic[1];
+          } else {
+            return responses.achievable[2];
+          }
+        }
+      };
+
+      const handleSubmit = () => {
+        if (resolution.trim()) {
+          setResult(analyzeResolution(resolution));
+          const newCount = totalChecks + 1;
+          setTotalChecks(newCount);
+          sessionStorage.setItem('resolutionChecks', newCount.toString());
+        }
+      };
+
+      const handleShare = async () => {
+        if (result) {
+          const text = `I got "${result.verdict}" for my resolution: "${resolution}". ${result.message} Try yours: https://sindhura31.github.io/resolution-reality/`;
+          
+          if (navigator.share) {
+            try {
+              await navigator.share({ title: 'Resolution Reality Check', text: text });
+              return;
+            } catch (err) {}
+          }
+          
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(text);
+              setShowCopied(true);
+              setTimeout(() => setShowCopied(false), 2000);
+            } catch (err) {}
+          }
+        }
+      };
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 p-6 flex items-center justify-center">
+          <div className="max-w-2xl w-full">
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">Resolution Reality Check</h1>
+              <p className="text-gray-600">Let's be honest about your 2025 goals</p>
+              {totalChecks > 0 && (
+                <div className="mt-3 inline-block bg-white px-4 py-2 rounded-full shadow-sm">
+                  <span className="text-sm font-medium text-purple-600">
+                    🎯 {totalChecks.toLocaleString()} resolution{totalChecks !== 1 ? 's' : ''} checked today
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="mb-8">
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  What's your New Year's resolution?
+                </label>
+                <textarea
+                  value={resolution}
+                  onChange={(e) => setResolution(e.target.value)}
+                  placeholder="e.g., 'Exercise 3 times a week' or 'Become a billionaire by March'"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  rows="3"
+                />
+                <button
+                  onClick={handleSubmit}
+                  className="mt-4 w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105"
+                >
+                  Check My Reality
+                </button>
+              </div>
+            </div>
+
+            {result && (
+              <div className={`bg-white rounded-lg shadow-lg p-8 border-4 ${
+                result.verdict.includes('achievable') || result.verdict.includes('Easy Win') || result.verdict.includes('Fruit') || result.verdict.includes('Reasonable') || result.verdict.includes('Sustainable') || result.verdict.includes('Slow Burn') ? 'border-green-500 bg-green-50' :
+                result.verdict.includes('Optimistic') || result.verdict.includes('Challenging') || result.verdict.includes('Commitment') || result.verdict.includes('Ambitious') || result.verdict.includes('Reach Goal') ? 'border-yellow-500 bg-yellow-50' :
+                'border-purple-500 bg-purple-50'
+              }`}>
+                <div className="flex flex-col items-center text-center">
+                  <div className="mb-4 text-5xl">
+                    {(result.verdict.includes('achievable') || result.verdict.includes('Easy Win') || result.verdict.includes('Fruit') || result.verdict.includes('Reasonable') || result.verdict.includes('Sustainable') || result.verdict.includes('Slow Burn')) ? '✅' :
+                     (result.verdict.includes('Optimistic') || result.verdict.includes('Challenging') || result.verdict.includes('Commitment') || result.verdict.includes('Ambitious') || result.verdict.includes('Reach Goal')) ? '⚡' : '🚀'}
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">{result.verdict}</h2>
+                  <p className="text-lg text-gray-700 mb-4">{result.message}</p>
+                  <div className="bg-white bg-opacity-50 rounded-lg p-4 border-2 border-gray-200 mb-4">
+                    <p className="text-sm font-medium text-gray-600">💡 {result.advice}</p>
+                  </div>
+                  <div className="w-full space-y-3">
+                    <div className="flex gap-2 justify-center flex-wrap">
+                      <button
+                        onClick={() => {
+                          const text = `I got "${result.verdict}" for my resolution: "${resolution}". ${result.message} Try yours: https://sindhura31.github.io/resolution-reality/`;
+                          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                        }}
+                        className="bg-green-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-600 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2"
+                      >
+                        <span>💬</span>
+                        WhatsApp
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          const text = `I got "${result.verdict}" for my resolution: "${resolution}". ${result.message} Try yours: https://sindhura31.github.io/resolution-reality/`;
+                          window.open(`sms:?body=${encodeURIComponent(text)}`);
+                        }}
+                        className="bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2"
+                      >
+                        <span>📱</span>
+                        SMS
+                      </button>
+                      
+                      <button
+                        onClick={handleShare}
+                        className="bg-purple-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-purple-600 transition-all transform hover:scale-105 shadow-lg flex items-center gap-2"
+                      >
+                        <span>📋</span>
+                        Copy
+                      </button>
+                    </div>
+                    {showCopied && (
+                      <div className="text-center bg-gray-800 text-white text-sm py-2 px-4 rounded shadow-lg mx-auto max-w-fit">
+                        ✓ Copied to clipboard!
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="text-center mt-8 text-sm text-gray-500">
+              <p>Made with brutal honesty and caffeine ☕</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ResolutionChecker />);
+  </script>
+</body>
+</html>
