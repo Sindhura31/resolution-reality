@@ -16,102 +16,79 @@ const ResolutionChecker = () => {
   const analyzeResolution = (text) => {
     const lower = text.toLowerCase();
     
-    // Check for delusional keywords first
-    const delusionalKeywords = [
-      'billionaire', 'millionaire', 'million dollars', 'rich', 'wealthy', 'famous', 'viral', 'influencer',
-      'perfect body', 'perfect', '10 languages', '100 books', '50 books', 'ceo', 'transform completely',
-      'never again', 'every single day', '30 days', 'one month', 'abs in', 'six pack', 'fluent in',
-      '4 am', '5 am', 'forever', 'completely stop', 'quit forever', 'completely change',
-      'overnight', 'instantly', 'immediately', 'all at once', 'radical', 'dramatically',
-      'celebrity', 'model body', 'supermodel', 'bodybuilder', 'professional athlete',
-      '100%', 'totally', 'entirely', 'quit my job', 'retire early', 'passive income millions',
-      'bestseller', 'youtube star', 'tiktok famous', 'instagram model', 'pro gamer',
-      'master everything', 'learn everything', 'best in the world', 'world class',
-      '50 pounds', '30 kg', '100 followers', '1000 followers', 'million followers',
-      'revolutionary', 'life changing overnight', 'become expert', 'phd in a year'
+    const delusionalPatterns = [
+      /become.*billionaire/i,
+      /make.*million/i,
+      /learn.*10.*languages/i,
+      /read.*100.*books/i,
+      /lose.*50.*pounds.*month/i,
+      /lose.*30.*kg/i,
+      /write.*novel.*week/i,
+      /run.*marathon.*never.*run/i,
+      /quit.*job.*become.*influencer/i,
+      /start.*5.*businesses/i,
+      /become.*ceo/i,
+      /viral/i,
+      /famous/i,
+      /perfect.*body/i,
+      /never.*again/i,
+      /every.*single.*day/i,
+      /completely.*transform/i,
+      /abs.*30.*days/i,
+      /fluent.*month/i,
+      /wake.*up.*4.*am/i,
+      /stop.*procrastinating.*forever/i
     ];
-    
-    // Check for optimistic keywords
-    const optimisticKeywords = [
-      'learn', 'language', 'spanish', 'french', 'german', 'italian', 'japanese', 'chinese',
-      'coding', 'programming', 'python', 'javascript', 'web development', 'app development',
-      'marathon', '10k', '5k', 'half marathon', 'triathlon', 'running', 'race',
-      'gym', 'workout', 'exercise', 'fitness', 'training', 'lift weights', 'strength',
-      'books', 'novel', 'write a book', 'finish writing', 'manuscript',
-      'business', 'startup', 'side hustle', 'freelance', 'entrepreneur',
-      'promotion', 'raise', 'advance career', 'new job', 'career change',
-      'save money', 'budget', 'invest', 'financial goals', 'emergency fund',
-      'meditate', 'yoga', 'mindfulness', 'therapy', 'mental health',
-      'healthy', 'diet', 'nutrition', 'meal planning', 'eating clean',
-      'weight', 'lose weight', 'pounds', 'kg', 'body fat', 'get fit',
-      'skill', 'course', 'certification', 'degree', 'qualification', 'training program',
-      'hobby', 'instrument', 'guitar', 'piano', 'drawing', 'painting', 'photography',
-      'volunteer', 'give back', 'charity', 'community service',
-      'network', 'connections', 'linkedin', 'professional development',
-      'travel', 'visit', 'countries', 'bucket list', 'adventure',
-      'quit smoking', 'stop drinking', 'cut down', 'reduce', 'limit',
-      'blog', 'podcast', 'youtube channel', 'content creation',
-      'build portfolio', 'side project', 'passion project'
-    ];
-    
-    // Check for achievable keywords
-    const achievableKeywords = [
-      'water', 'hydrate', 'drink water', 'more water', '8 glasses',
-      'sleep', 'rest', 'sleep better', 'sleep earlier', 'bedtime', '8 hours',
-      'walk', 'walking', 'stroll', 'steps', 'daily walk',
-      'call', 'text', 'reach out', 'keep in touch', 'stay connected',
-      'family', 'friend', 'friends', 'parents', 'mom', 'dad', 'siblings',
-      'read more', 'read daily', 'reading', 'book a month', 'articles',
-      'cook', 'cooking', 'meal prep', 'home cooked', 'recipes',
-      'social media', 'phone', 'screen time', 'less scrolling', 'digital detox',
-      'organize', 'declutter', 'clean', 'tidy', 'organized', 'neat',
-      'room', 'desk', 'workspace', 'closet', 'garage',
-      'journal', 'journaling', 'diary', 'write down', 'reflect',
-      'stretch', 'stretching', 'flexibility', 'morning stretch',
-      'floss', 'dental', 'teeth', 'brush teeth',
-      'bed', 'make bed', 'morning routine', 'evening routine',
-      'grateful', 'gratitude', 'thankful', 'appreciate',
-      'compliment', 'kind', 'kindness', 'nice', 'positive',
-      'breathe', 'breathing', 'deep breaths', 'relax', 'calm',
-      'smile', 'laugh', 'happy', 'joy', 'enjoy',
-      'posture', 'sit up straight', 'stand tall', 'ergonomic',
-      'breakfast', 'eat breakfast', 'healthy breakfast',
-      'vitamins', 'supplements', 'take vitamins',
-      'sunlight', 'outdoors', 'fresh air', 'nature',
-      'plants', 'garden', 'grow plants', 'water plants',
-      'pet', 'dog', 'cat', 'play with pet',
-      'music', 'listen to music', 'favorite songs',
-      'hobby time', 'relax', 'unwind', 'me time',
-      'say no', 'boundaries', 'self care', 'prioritize'
-    ];
-    
-    // Count matches
-    let delusionalScore = 0;
-    let optimisticScore = 0;
-    let achievableScore = 0;
-    
-    delusionalKeywords.forEach(keyword => {
-      if (lower.includes(keyword)) delusionalScore++;
-    });
-    
-    optimisticKeywords.forEach(keyword => {
-      if (lower.includes(keyword)) optimisticScore++;
-    });
-    
-    achievableKeywords.forEach(keyword => {
-      if (lower.includes(keyword)) achievableScore++;
-    });
 
-    
-    // Also check for intensity markers
-    if (/\d{2,}/.test(text)) { // Large numbers (10+, 50+, 100+)
-      const num = parseInt(text.match(/\d+/)[0]);
-      if (num >= 50) delusionalScore += 2;
-      else if (num >= 10) optimisticScore += 1;
-    }
-    
-    if (text.length > 100) delusionalScore++; // Very long resolutions
-    if (/!!!|never|always|every day|daily|perfect/.test(lower)) optimisticScore++;
+    const optimisticPatterns = [
+      /learn.*language/i,
+      /learn.*coding/i,
+      /run.*5k|10k|half.*marathon/i,
+      /read.*\d+.*book/i,
+      /lose.*\d+.*pound/i,
+      /lose.*\d+.*kg/i,
+      /save.*money/i,
+      /start.*business/i,
+      /side.*hustle/i,
+      /write.*book/i,
+      /finish.*book/i,
+      /get.*promotion/i,
+      /learn.*code|program/i,
+      /exercise.*week/i,
+      /workout.*week/i,
+      /meditate.*daily/i,
+      /go.*gym/i,
+      /eat.*healthy/i,
+      /quit.*smoking/i,
+      /learn.*skill/i,
+      /build.*portfolio/i
+    ];
+
+    const achievablePatterns = [
+      /drink.*water/i,
+      /hydrate/i,
+      /sleep.*better/i,
+      /sleep.*earlier/i,
+      /call.*friend/i,
+      /call.*family/i,
+      /text.*back/i,
+      /take.*walk/i,
+      /walk.*more/i,
+      /read.*more/i,
+      /read.*daily/i,
+      /cook.*home/i,
+      /meal.*prep/i,
+      /less.*social.*media/i,
+      /less.*phone/i,
+      /organize/i,
+      /clean.*room/i,
+      /journal/i,
+      /stretch/i,
+      /floss/i,
+      /make.*bed/i,
+      /grateful/i,
+      /compliment/i
+    ];
 
     const responses = {
       delusional: [
