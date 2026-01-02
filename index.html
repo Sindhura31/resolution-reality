@@ -185,7 +185,7 @@ const ResolutionChecker = () => {
     }
   };
 
-  const handleShare = async () => {
+  const handleShare = () => {
     if (result) {
       const shareText = `I just checked my New Year's resolution and got: "${result.verdict}"
 
@@ -195,28 +195,13 @@ ${result.message}
 
 Try yours at: https://sindhura31.github.io/resolution-reality/`;
       
-      // Try native share API first (works on mobile)
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: 'Resolution Reality Check',
-            text: shareText
-          });
-          return;
-        } catch (err) {
-          // User cancelled or error - fall through to other methods
-        }
-      }
-      
-      // Fallback to clipboard
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        try {
-          await navigator.clipboard.writeText(shareText);
+        navigator.clipboard.writeText(shareText).then(() => {
           setShowCopied(true);
           setTimeout(() => setShowCopied(false), 2000);
-        } catch (err) {
+        }).catch(() => {
           alert('Share this text:\n\n' + shareText);
-        }
+        });
       } else {
         alert('Share this text:\n\n' + shareText);
       }
